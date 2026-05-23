@@ -26,10 +26,15 @@ export async function POST(req: NextRequest) {
       ? `${post.caption}\n\n${post.hashtags.join(" ")}`
       : post.caption;
 
+    // Map media_type from DB to Instagram API media type
+    let mediaType: "IMAGE" | "VIDEO" | "REELS" | "STORIES" = "IMAGE";
+    if (post.media_type === "REELS") mediaType = "REELS";
+    else if (post.media_type === "STORIES") mediaType = "STORIES";
+
     const igPostId = await postToInstagram({
       imageUrl: post.media_url,
       caption: fullCaption,
-      mediaType: post.media_type === "REELS" ? "VIDEO" : "IMAGE",
+      mediaType,
     });
 
     await sql`

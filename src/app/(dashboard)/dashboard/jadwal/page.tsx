@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { Trash2 } from "lucide-react";
+import { useCallback, useEffect, useState } from "react";
+import { Trash2, Send, AlertCircle } from "lucide-react";
 
 interface Post {
   id: number;
@@ -10,6 +10,7 @@ interface Post {
   status: string;
   scheduled_at: string;
   created_at: string;
+  error_message?: string;
 }
 
 const statusConfig: Record<string, { label: string; class: string }> = {
@@ -23,21 +24,10 @@ export default function JadwalPage() {
   const [posts, setPosts] = useState<Post[]>([]);
   const [filter, setFilter] = useState("semua");
   const [search, setSearch] = useState("");
+  const [publishingId, setPublishingId] = useState<number | null>(null);
+  const [message, setMessage] = useState("");
 
-  useEffect(() => {
-    const params = new URLSearchParams();
-    if (filter !== "semua") params.set("status", filter);
-    if (search) params.set("q", search);
-
-    fetch(`/api/posts?${params}`)
-      .then((r) => r.json())
-      .then((data) => {
-        if (Array.isArray(data)) setPosts(data);
-      })
-      .catch(() => {});
-  }, [filter, search]);
-
-  async function loadPosts() {
+  const loadPosts = useCallback(async () => {
     const params = new URLSearchParams();
     if (filter !== "semua") params.set("status", filter);
     if (search) params.set("q", search);
@@ -45,12 +35,44 @@ export default function JadwalPage() {
     const res = await fetch(`/api/posts?${params}`);
     const data = await res.json();
     if (Array.isArray(data)) setPosts(data);
-  }
+  }, [filter, search]);
+
+  useEffect(() => {
+    loadPosts();
+  }, [loadPosts]);
 
   async function deletePost(id: number) {
     if (!confirm("Hapus post ini?")) return;
     await fetch(`/api/posts/${id}`, { method: "DELETE" });
     loadPosts();
+  }
+
+  async function publishNow(id: number) {
+    if (!confirm("Posting sekarang ke Instagram?")) return;
+    setPublishingId(id);
+    setMessage("");
+
+    try {
+      const res = await fetch("/api/posts/publish", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ postId: id }),
+      });
+      const data = await res.json();
+
+      if (data.success) {
+        setMessage("✅ Berhasil diposting ke Instagram!");
+      } else {
+        setMessage(`❌ Gagal: ${data.error || "Unknown error"}`);
+      }
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : "Network error";
+      setMessage(`❌ ${msg}`);
+    }
+
+    setPublishingId(null);
+    loadPosts();
+    setTimeout(() => setMessage(""), 5000);
   }
 
   const tabs = [
@@ -63,6 +85,22 @@ export default function JadwalPage() {
 
   return (
     <div>
+      {/* Cron info banner */}
+      <div className="mb-4 p-3 bg-amber-50 border border-amber-200 rounded-lg flex items-start gap-2">
+        <AlertCircle size={16} className="text-amber-600 flex-shrink-0 mt-0.5" />
+        <div className="text-xs text-amber-800 font-semibold">
+          <strong>Catatan Cron:</strong> Auto-posting hanya jalan sekali sehari (jam 14:00 WIB) karena Vercel Hobby plan.
+          Untuk post di waktu spesifik, gunakan tombol <strong>Post Sekarang</strong> di bawah.
+        </div>
+      </div>
+
+      {/* Status message */}
+      {message && (
+        <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg text-sm font-bold text-blue-800">
+          {message}
+        </div>
+      )}
+
       {/* Filters */}
       <div className="flex items-center gap-3 mb-5 flex-wrap">
         <div className="flex gap-1 bg-gray-100 p-1 rounded-lg border border-gray-200">
@@ -98,6 +136,8 @@ export default function JadwalPage() {
         ) : (
           posts.map((post) => {
             const st = statusConfig[post.status] || statusConfig.draft;
+            const canPublish = post.status === "scheduled" || post.status === "draft" || post.status === "failed";
+
             return (
               <div
                 key={post.id}
@@ -117,15 +157,38 @@ export default function JadwalPage() {
                   <p className="text-[11px] text-gray-400 font-mono mt-0.5">
                     {post.media_type} · 📅 {post.scheduled_at || post.created_at}
                   </p>
+                  {post.status === "failed" && post.error_message && (
+                    <p className="text-[11px] text-red-600 font-semibold mt-1 truncate">
+                      ⚠️ {post.error_message}
+                    </p>
+                  )}
                 </div>
                 <span
                   className={`text-[10px] font-bold px-2.5 py-1 rounded-full border uppercase ${st.class}`}
                 >
                   {st.label}
                 </span>
+
+                {canPublish && (
+                  <button
+                    onClick={() => publishNow(post.id)}
+                    disabled={publishingId === post.id}
+                    className="inline-flex items-center gap-1 px-3 py-1.5 bg-amber-500 text-white text-xs font-bold rounded-lg hover:bg-amber-600 transition disabled:opacity-50 disabled:cursor-not-allowed"
+                    title="Posting sekarang ke Instagram"
+                  >
+                    {publishingId === post.id ? (
+                      <span className="w-3 h-3 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                    ) : (
+                      <Send size={12} />
+                    )}
+                    Post Sekarang
+                  </button>
+                )}
+
                 <button
                   onClick={() => deletePost(post.id)}
                   className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition"
+                  title="Hapus post"
                 >
                   <Trash2 size={14} />
                 </button>
