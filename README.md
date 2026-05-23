@@ -110,18 +110,25 @@ Akan membuat:
 
 ## Cron Schedule
 
-Default: setiap 5 menit cek post yang dijadwalkan dan posting yang sudah jatuh tempo.
+Default: **sekali sehari jam 14:00 WIB** (07:00 UTC) — sesuai limit Hobby plan Vercel.
 
 Konfigurasi di `vercel.json`:
 ```json
 {
   "crons": [
-    { "path": "/api/cron/post", "schedule": "*/5 * * * *" }
+    { "path": "/api/cron/post", "schedule": "0 7 * * *" }
   ]
 }
 ```
 
-**Catatan:** Vercel Hobby plan terbatas pada 1 cron/hari. Untuk testing yang lebih sering, perlu Pro plan atau pindah ke VPS dengan cron native.
+**⚠️ Keterbatasan Hobby plan:**
+- Cron hanya 1x per hari → posting terjadwal hanya akan dipublish jam 14:00 WIB
+- Untuk posting per jam yang akurat, perlu **Pro plan** ($20/bulan) atau migrasi ke VPS
+
+**Workaround tanpa upgrade:**
+- Jadwalkan post di hari yang sama, semua akan dipost jam 14:00 WIB hari itu
+- Untuk post di waktu spesifik, pakai tombol "Post Sekarang" di jam yang diinginkan
+- Atau pakai layanan cron eksternal (cron-job.org) yang panggil endpoint cron kamu
 
 ## Migrasi ke VPS (nanti)
 

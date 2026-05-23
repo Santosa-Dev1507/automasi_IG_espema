@@ -12,13 +12,12 @@ export async function GET(req: NextRequest) {
   }
 
   try {
-    // Find posts that are scheduled and due
+    // Find posts that are scheduled and due (no LIMIT — process all due posts)
     const result = await sql`
       SELECT * FROM posts 
       WHERE status = 'scheduled' 
         AND scheduled_at <= NOW()
       ORDER BY scheduled_at ASC
-      LIMIT 5
     `;
 
     const results = [];
