@@ -1,9 +1,22 @@
 import { NextRequest, NextResponse } from "next/server";
 import { sql } from "@/lib/db";
 import { postToInstagram } from "@/lib/instagram";
+import { extractDriveFileId } from "@/lib/drive";
+
+function resolveMediaUrl(rawUrl: string, origin: string): string {
+  if (!rawUrl) return rawUrl;
+  const isDriveUrl =
+    rawUrl.includes("drive.google.com") ||
+    rawUrl.includes("googleusercontent.com");
+  if (!isDriveUrl) return rawUrl;
+
+  const fileId = extractDriveFileId(rawUrl);
+  if (!fileId) return rawUrl;
+
+  return `${origin}/api/media/${fileId}`;
+}
 
 // GET /api/cron/post — Called by Vercel Cron to publish scheduled posts
-// Configure in vercel.json: { "crons": [{ "path": "/api/cron/post", "schedule": "*/5 * * * *" }] }
 export async function GET(req: NextRequest) {
   // Verify cron secret (Vercel sends this header)
   const authHeader = req.headers.get("authorization");
@@ -21,6 +34,7 @@ export async function GET(req: NextRequest) {
     `;
 
     const results = [];
+    const origin = req.nextUrl.origin;
 
     for (const post of result.rows) {
       try {
@@ -33,8 +47,10 @@ export async function GET(req: NextRequest) {
         if (post.media_type === "REELS") mediaType = "REELS";
         else if (post.media_type === "STORIES") mediaType = "STORIES";
 
+        const mediaUrl = resolveMediaUrl(post.media_url, origin);
+
         const igPostId = await postToInstagram({
-          imageUrl: post.media_url,
+          imageUrl: mediaUrl,
           caption: fullCaption,
           mediaType,
         });

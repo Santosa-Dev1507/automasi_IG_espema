@@ -48,9 +48,45 @@ export function getDriveDirectLink(fileId: string): string {
   return `https://drive.google.com/uc?export=download&id=${fileId}`;
 }
 
+/**
+ * Get a URL that serves the raw file bytes via our proxy.
+ * Use this URL when sending to Instagram API (instead of the lh3.googleusercontent.com one).
+ *
+ * @param fileId - The Google Drive file ID
+ * @param baseUrl - The deployment base URL (e.g. https://example.vercel.app). Required because IG fetches from public URL.
+ */
+export function getProxyMediaUrl(fileId: string, baseUrl: string): string {
+  return `${baseUrl}/api/media/${fileId}`;
+}
+
 export function getDriveImageUrl(fileId: string): string {
-  // This URL works for images that are publicly shared
+  // For preview only — IG API can't reliably fetch from this URL.
+  // Use getProxyMediaUrl() for actual posting.
   return `https://lh3.googleusercontent.com/d/${fileId}`;
+}
+
+/**
+ * Extract file ID from various Google Drive URL formats or return as-is if it's already an ID.
+ */
+export function extractDriveFileId(input: string): string | null {
+  const trimmed = input.trim();
+
+  // Format: https://drive.google.com/file/d/FILE_ID/view
+  const match1 = trimmed.match(/\/file\/d\/([a-zA-Z0-9_-]+)/);
+  if (match1) return match1[1];
+
+  // Format: https://drive.google.com/open?id=FILE_ID or any ?id=FILE_ID
+  const match2 = trimmed.match(/[?&]id=([a-zA-Z0-9_-]+)/);
+  if (match2) return match2[1];
+
+  // Format: lh3.googleusercontent.com/d/FILE_ID
+  const match3 = trimmed.match(/\/d\/([a-zA-Z0-9_-]+)/);
+  if (match3) return match3[1];
+
+  // Already a plain file ID
+  if (/^[a-zA-Z0-9_-]+$/.test(trimmed)) return trimmed;
+
+  return null;
 }
 
 export function formatFileSize(bytes: string | number): string {
