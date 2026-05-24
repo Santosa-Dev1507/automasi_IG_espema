@@ -37,7 +37,8 @@ export function Sidebar() {
 
   // Close mobile menu when route changes
   useEffect(() => {
-    setMobileOpen(false);
+    if (mobileOpen) setMobileOpen(false);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pathname]);
 
   // Group items

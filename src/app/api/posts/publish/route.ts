@@ -1,17 +1,15 @@
 import { NextRequest, NextResponse } from "next/server";
 import { checkAuth } from "@/lib/auth";
 import { sql } from "@/lib/db";
-import { postToInstagram } from "@/lib/instagram";
+import { postToInstagram, postCarouselToInstagram } from "@/lib/instagram";
 import { extractDriveFileId } from "@/lib/drive";
 
 /**
- * Convert a Google Drive URL to our public proxy URL,
- * so Instagram API can fetch raw bytes (with correct Content-Type).
+ * Convert a Google Drive URL to our public proxy URL.
  */
 function resolveMediaUrl(rawUrl: string, origin: string): string {
   if (!rawUrl) return rawUrl;
 
-  // Already an external direct URL (not Drive)? Use as-is.
   const isDriveUrl =
     rawUrl.includes("drive.google.com") ||
     rawUrl.includes("googleusercontent.com");
@@ -38,8 +36,11 @@ export async function POST(req: NextRequest) {
 
   const post = result.rows[0];
 
-  if (!post.media_url) {
-    return NextResponse.json({ error: "Post has no media URL" }, { status: 400 });
+  if (!post.media_url && (!post.media_urls || post.media_urls.length === 0)) {
+    return NextResponse.json(
+      { error: "Post belum punya media" },
+      { status: 400 }
+    );
   }
 
   try {
@@ -47,20 +48,33 @@ export async function POST(req: NextRequest) {
       ? `${post.caption}\n\n${post.hashtags.join(" ")}`
       : post.caption;
 
-    // Map media_type from DB to Instagram API media type
-    let mediaType: "IMAGE" | "VIDEO" | "REELS" | "STORIES" = "IMAGE";
-    if (post.media_type === "REELS") mediaType = "REELS";
-    else if (post.media_type === "STORIES") mediaType = "STORIES";
-
-    // Convert Drive URL → proxy URL accessible by Instagram API
     const origin = req.nextUrl.origin;
-    const mediaUrl = resolveMediaUrl(post.media_url, origin);
+    let igPostId: string;
 
-    const igPostId = await postToInstagram({
-      imageUrl: mediaUrl,
-      caption: fullCaption,
-      mediaType,
-    });
+    // Carousel — multiple images
+    if (post.media_type === "CAROUSEL" && post.media_urls?.length >= 2) {
+      const imageUrls = post.media_urls.map((u: string) =>
+        resolveMediaUrl(u, origin)
+      );
+
+      igPostId = await postCarouselToInstagram({
+        imageUrls,
+        caption: fullCaption,
+      });
+    } else {
+      // Single image / video
+      let mediaType: "IMAGE" | "VIDEO" | "REELS" | "STORIES" = "IMAGE";
+      if (post.media_type === "REELS") mediaType = "REELS";
+      else if (post.media_type === "STORIES") mediaType = "STORIES";
+
+      const mediaUrl = resolveMediaUrl(post.media_url, origin);
+
+      igPostId = await postToInstagram({
+        imageUrl: mediaUrl,
+        caption: fullCaption,
+        mediaType,
+      });
+    }
 
     await sql`
       UPDATE posts SET 

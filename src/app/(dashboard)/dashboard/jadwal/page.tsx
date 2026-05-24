@@ -55,8 +55,22 @@ export default function JadwalPage() {
   }, [filter, search]);
 
   useEffect(() => {
-    loadPosts();
-  }, [loadPosts]);
+    let cancelled = false;
+    const params = new URLSearchParams();
+    if (filter !== "semua") params.set("status", filter);
+    if (search) params.set("q", search);
+
+    fetch(`/api/posts?${params}`)
+      .then((r) => r.json())
+      .then((data) => {
+        if (!cancelled && Array.isArray(data)) setPosts(data);
+      })
+      .catch(() => {});
+
+    return () => {
+      cancelled = true;
+    };
+  }, [filter, search]);
 
   async function deletePost(id: number) {
     if (!confirm("Hapus post ini?")) return;

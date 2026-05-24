@@ -54,6 +54,7 @@ export async function initDB() {
       caption TEXT,
       hashtags TEXT[],
       media_url TEXT,
+      media_urls TEXT[],
       media_type VARCHAR(20) DEFAULT 'FEED',
       location VARCHAR(255),
       status VARCHAR(20) DEFAULT 'draft',
@@ -64,6 +65,11 @@ export async function initDB() {
       created_at TIMESTAMP DEFAULT NOW(),
       updated_at TIMESTAMP DEFAULT NOW()
     )
+  `;
+
+  // Migration: add media_urls column if not exists (for existing tables)
+  await sql`
+    ALTER TABLE posts ADD COLUMN IF NOT EXISTS media_urls TEXT[]
   `;
 
   await sql`

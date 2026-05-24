@@ -45,13 +45,36 @@ export async function POST(req: NextRequest) {
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   const body = await req.json();
-  const { caption, hashtags, mediaUrl, mediaType, location, status, scheduledAt } = body;
+  const {
+    caption,
+    hashtags,
+    mediaUrl,
+    mediaUrls,
+    mediaType,
+    location,
+    status,
+    scheduledAt,
+  } = body;
 
   const userId = (session.user as { id?: string }).id;
 
+  // For carousel, save first URL as media_url too (for backward compat & preview)
+  const primaryUrl =
+    mediaUrl || (mediaUrls && mediaUrls.length > 0 ? mediaUrls[0] : null);
+  const urlsArr: string[] | null =
+    mediaUrls && mediaUrls.length > 0 ? mediaUrls : null;
+
   const result = await sql`
-    INSERT INTO posts (user_id, caption, hashtags, media_url, media_type, location, status, scheduled_at)
-    VALUES (${userId}, ${caption}, ${hashtags}, ${mediaUrl}, ${mediaType || "FEED"}, ${location}, ${status || "draft"}, ${scheduledAt || null})
+    INSERT INTO posts (
+      user_id, caption, hashtags, media_url, media_urls,
+      media_type, location, status, scheduled_at
+    )
+    VALUES (
+      ${userId}, ${caption}, ${hashtags as unknown as string},
+      ${primaryUrl}, ${urlsArr as unknown as string},
+      ${mediaType || "FEED"}, ${location},
+      ${status || "draft"}, ${scheduledAt || null}
+    )
     RETURNING *
   `;
 
