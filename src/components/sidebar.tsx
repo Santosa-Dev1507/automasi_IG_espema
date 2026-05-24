@@ -88,7 +88,7 @@ export function Sidebar() {
             </div>
           </div>
           <div className="inline-flex items-center gap-1.5 bg-white/10 border border-white/20 rounded-full px-2.5 py-1 text-[11px] text-white/70 font-bold">
-            📸 @smpn5klaten
+            📸 @espema_klaten
           </div>
 
           {/* Close button (mobile only) */}
@@ -139,7 +139,7 @@ export function Sidebar() {
               5
             </div>
             <div className="flex-1 min-w-0">
-              <div className="text-xs font-bold text-white truncate">@smpn5klaten</div>
+              <div className="text-xs font-bold text-white truncate">@espema_klaten</div>
               <div className="text-[10px] text-white/40">Instagram Business</div>
             </div>
             <div className="w-2 h-2 rounded-full bg-green-400" />

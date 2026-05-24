@@ -99,7 +99,7 @@ export default function LoginPage() {
           </button>
 
           <p className="text-center text-xs text-gray-400 mt-4 font-mono">
-            📸 @smpn5klaten · Instagram Business
+            📸 @espema_klaten · Instagram Business
           </p>
         </form>
       </div>

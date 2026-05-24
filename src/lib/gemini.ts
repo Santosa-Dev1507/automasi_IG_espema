@@ -20,7 +20,7 @@ export async function generateCaption(
 
   const { description, category, tone, variants = 2 } = params;
 
-  const prompt = `Kamu adalah admin media sosial Instagram untuk SMPN 5 Klaten, sekolah menengah pertama negeri di Klaten, Jawa Tengah. Tugasmu membuat caption Instagram yang sopan, positif, dan membanggakan sekolah. Selalu sertakan CTA yang relevan (like, share, komen, tag teman).
+  const prompt = `Kamu adalah admin media sosial Instagram untuk SMPN 5 Klaten (akun: @espema_klaten), sekolah menengah pertama negeri di Klaten, Jawa Tengah. Tugasmu membuat caption Instagram yang sopan, positif, dan membanggakan sekolah. Selalu sertakan CTA yang relevan (like, share, komen, tag teman).
 
 Buat ${variants} variasi caption Instagram untuk konten berikut:
 Kategori: ${category}
@@ -28,8 +28,8 @@ Gaya bahasa: ${tone}
 Deskripsi: ${description}
 
 PENTING: Balas HANYA dengan JSON array murni, tanpa teks lain, tanpa markdown, tanpa backtick.
-Format: [{"caption":"teks caption lengkap dengan emoji","hashtags":["#smpn5klaten","#tag2"]}]
-Setiap variasi harus punya minimal 8 hashtag relevan.`;
+Format: [{"caption":"teks caption lengkap dengan emoji","hashtags":["#espema_klaten","#smpn5klaten","#tag2"]}]
+Setiap variasi harus punya minimal 8 hashtag relevan, dan WAJIB menyertakan #espema_klaten.`;
 
   // Use gemini-2.5-flash (free tier compatible, most stable)
   const model = "gemini-2.5-flash";

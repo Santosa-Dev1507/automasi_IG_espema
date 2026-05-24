@@ -56,7 +56,7 @@ export default function BuatPostPage() {
   }
 
   function addSchoolHashtags() {
-    const schoolTags = ["smpn5klaten", "klaten", "smpklaten", "pendidikanindonesia", "sekolahklaten"];
+    const schoolTags = ["espema_klaten", "smpn5klaten", "klaten", "smpklaten", "pendidikanindonesia", "sekolahklaten"];
     const newTags = schoolTags.filter((t) => !hashtags.includes(t));
     setHashtags([...hashtags, ...newTags]);
   }
@@ -298,7 +298,7 @@ export default function BuatPostPage() {
                 5
               </div>
               <div>
-                <div className="text-[11px] font-bold text-white">smpn5klaten</div>
+                <div className="text-[11px] font-bold text-white">espema_klaten</div>
                 <div className="text-[9px] text-gray-500">{location}</div>
               </div>
             </div>
@@ -320,7 +320,7 @@ export default function BuatPostPage() {
             <div className="p-3 bg-black">
               <div className="flex gap-3 text-lg mb-2">❤️ 💬 ✈️</div>
               <div className="text-[11px] text-gray-300 leading-relaxed">
-                <span className="font-bold text-white">smpn5klaten</span>{" "}
+                <span className="font-bold text-white">espema_klaten</span>{" "}
                 {caption || "Caption akan tampil di sini..."}
               </div>
               {hashtags.length > 0 && (
