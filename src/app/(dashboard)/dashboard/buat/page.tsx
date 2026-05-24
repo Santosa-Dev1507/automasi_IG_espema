@@ -121,7 +121,7 @@ export default function BuatPostPage() {
   }
 
   return (
-    <div className="grid grid-cols-2 gap-6">
+    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
       {/* Form */}
       <div className="space-y-4">
         {/* Media */}
@@ -213,7 +213,7 @@ export default function BuatPostPage() {
         {/* Settings */}
         <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-5">
           <h3 className="text-sm font-black text-gray-900 mb-3">⚙️ Pengaturan</h3>
-          <div className="grid grid-cols-2 gap-3 mb-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-3">
             <div>
               <label className="block text-xs font-bold text-gray-500 uppercase tracking-wide mb-1.5">
                 Tipe Konten

@@ -70,7 +70,7 @@ export default function AICaptionPage() {
   ];
 
   return (
-    <div className="grid grid-cols-2 gap-6">
+    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
       {/* Form */}
       <div>
         <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl border border-indigo-200 p-5 mb-4">
@@ -115,7 +115,7 @@ export default function AICaptionPage() {
               </select>
             </div>
 
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
                 <label className="block text-xs font-bold text-gray-500 uppercase tracking-wide mb-1.5">
                   Gaya Bahasa

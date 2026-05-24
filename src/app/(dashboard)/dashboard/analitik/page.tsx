@@ -20,14 +20,14 @@ export default function AnalitikPage() {
   return (
     <div>
       {/* Stats */}
-      <div className="grid grid-cols-4 gap-4 mb-6">
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 mb-6">
         <AnalyticCard label="Total Reach" value={formatNum(stats.totalReach)} sub="30 hari terakhir" icon="👁️" />
         <AnalyticCard label="Impressions" value={formatNum(stats.impressions)} sub="30 hari terakhir" icon="📈" />
         <AnalyticCard label="Total Likes" value={formatNum(stats.totalLikes)} sub="30 hari terakhir" icon="❤️" />
         <AnalyticCard label="Komentar" value={formatNum(stats.comments)} sub="30 hari terakhir" icon="💬" />
       </div>
 
-      <div className="grid grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Best Times */}
         <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-5">
           <h3 className="text-sm font-black text-gray-900 mb-4">⏰ Waktu Terbaik Posting</h3>

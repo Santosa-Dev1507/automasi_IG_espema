@@ -37,7 +37,7 @@ export default function SettingsPage() {
   }
 
   return (
-    <div className="grid grid-cols-2 gap-6">
+    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
       {/* Instagram API */}
       <div className="space-y-4">
         <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-5">
